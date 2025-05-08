@@ -98,6 +98,7 @@ typedef struct dazzle_context_t {
 //======== Function Prototypes ========//
 //Immediate rendering//
 bool dazzle_clear(dazzle_context_t* ctx, uint64_t color);
+bool dazzle_draw(dazzle_context_t* ctx, dazzle_retained_element_t* element);
 
 //Element creation//
 dazzle_retained_element_t* dazzle_create_triangle(dazzle_context_t* ctx, uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint32_t x3, uint32_t y3,bool filled,uint64_t color);
@@ -114,6 +115,10 @@ bool dazzle_add(dazzle_context_t* ctx, dazzle_retained_element_t* element);
 
 bool dazzle_clear(dazzle_context_t* ctx, uint64_t color){
     return ctx->clear(ctx,color);
+}
+
+bool dazzle_draw(dazzle_context_t* ctx, dazzle_retained_element_t* element){
+    return ctx->draw_element(ctx,element);
 }
 
 dazzle_retained_element_t* dazzle_create_triangle(dazzle_context_t* ctx, uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint32_t x3, uint32_t y3,bool filled,uint64_t color){

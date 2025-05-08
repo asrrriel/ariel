@@ -52,8 +52,25 @@ int main(int argc, char **argv) {
     printf("Font type: %s\n", font.format == BT_FORMAT_PSF1 ? "PSF1" : 
                               font.format == BT_FORMAT_PSF2 ? "PSF2" : 
                               font.format == BT_FORMAT_TTF ? "TTF" : "Unknown");
+    printf("Glyph count: %d\n", font.glyph_count);
+    printf("Suggested width: %d\n", font.suggested_width);
+    printf("Suggested height: %d\n", font.suggested_height);
+    printf("glyph data pointer: %p\n", font.glyph_data);
+    printf("bytes per glyph: %d\n", font.psfx_bytes_per_glyph);
 
     dazzle_clear(ctx, 0x00000000);
+    
+    uint32_t posx = 0;
+    uint32_t posy = 0;
+    for(int i = 0; i < font.glyph_count; i++){
+        glyph_t glyph = render_glyph(font, i,0,0x000000FF);
+        dazzle_draw(ctx, dazzle_create_blitable(ctx, posx, posy, glyph.width, glyph.height, glyph.buffer));
+        posx += glyph.width;
+        if(posx >= (fb.width - glyph.width)){
+            posx = 0;
+            posy += glyph.height;
+        }
+    }
 
     uint64_t color = 0x00000000;
     bool done = false;
