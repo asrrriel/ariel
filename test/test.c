@@ -1,14 +1,3 @@
-/*
- * test.c
- * This is the test program for Dazzle.
- * 2025-04-06
- * 
- * This file is part of the public domain RoidsOS operating system.
- *
- * Licensed under CC0, see https://creativecommons.org/publicdomain/zero/1.0/
- *
- * NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK. 
- */
 #define __DAZZLE_IMPL__
 
 #include <stdint.h>
@@ -17,9 +6,6 @@
 #include <math.h>
 #include <betterm/bt.h>
 #include <SDL2/SDL.h>
-
-// set to duration in seconds
-#define BENCHMARKING 60
 
 int main(int argc, char **argv) {
     SDL_Init(SDL_INIT_VIDEO);
@@ -56,14 +42,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    dazzle_add(ctx, dazzle_create_rectangle(ctx, 100, 100, 50, 100, false, 0x000000FF));
-    dazzle_add(ctx, dazzle_create_rectangle(ctx, 150, 100, 50, 100, true, 0x0000FF00));
-    dazzle_add(ctx, dazzle_create_rectangle(ctx, 200, 100, 50, 100, false, 0x00FF0000));
-    dazzle_add(ctx, dazzle_create_blitable(ctx, 200, 200, 100, 100, blitablebuf));
-    dazzle_add(ctx, dazzle_create_triangle(ctx, 400, 100, 400, 200, 489, 420, false, 0x000000FF));
-    dazzle_add(ctx, dazzle_create_circle(ctx, 100, 420, 50, false, 0x000000FF));
-    dazzle_add(ctx, dazzle_create_circle(ctx, 200, 420, 50, true, 0x000000FF));
-
+    dazzle_clear(ctx, 0x00000000);
 
     uint64_t color = 0x00000000;
     bool done = false;
@@ -117,33 +96,10 @@ int main(int argc, char **argv) {
             }
         }
 
-        // Convert HUE to RGB
-        float r = fabs(sin(hue)) * 255;
-        float g = fabs(sin(hue + 2.094)) * 255;
-        float b = fabs(sin(hue + 4.188)) * 255;
-
-        uint8_t red   = (uint8_t)r;
-        uint8_t green = (uint8_t)g;
-        uint8_t blue  = (uint8_t)b;
-
-        // Reassemble into 0xAABBGGRR format
-        color = (0xFF << 24) | (blue << 16) | (green << 8) | red; 
-
-        dazzle_clear(ctx, color);
-        dazzle_redraw(ctx);
-
         SDL_UpdateTexture(texture, NULL, (void*)fb.address, fb.pitch);
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
-
-        // Hue cycling
-        hue += 1.0f * delta_time;
-        if (hue > 6.283f) hue -= 6.283f;
-
-        #ifdef BENCHMARKING
-            if(num_secs >= BENCHMARKING) done = true;
-        #endif
     }
 
     printf("==== Final Results ====\n");

@@ -1,14 +1,3 @@
-/*
- * framebuffer.inc.c
- * This is the fremaebuffer backend file for Dazzle
- * 2025-04-06
- *
- * This file is part of the public domain RoidsOS operating system.
- *
- * Licensed under CC0, see https://creativecommons.org/publicdomain/zero/1.0/
- *
- * NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
- */
  #ifndef __FRAMEBUF_INC_C__
  #define __FRAMEBUF_INC_C__
  
