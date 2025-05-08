@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <betterm/bt.h>
+#include <betterm/__fontldr.inc.c>
 #include <SDL2/SDL.h>
 
 int main(int argc, char **argv) {
@@ -34,13 +35,23 @@ int main(int argc, char **argv) {
 
     dazzle_context_t* ctx = dazzle_init_fb(alloc, &fb);
 
-    void* blitablebuf = malloc(100 * 100 * 4);
-
-    for(int i = 0; i < 100; i++){
-        for(int j = 0; j < 100; j++){
-            ((uint32_t*)blitablebuf)[i * 100 + j] = i*j*0xff;
-        }
+    FILE* f = fopen("test.psf", "rb");
+    if(f == NULL) {
+        printf("Failed to open test.psf\n");
+        return 1;
     }
+    fseek(f, 0, SEEK_END);
+    int fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    uint8_t* psf = malloc(fsize);
+    fread(psf, fsize, 1, f);
+    fclose(f);
+
+    font_t font = load_font(alloc, psf, fsize);
+
+    printf("Font type: %s\n", font.format == BT_FORMAT_PSF1 ? "PSF1" : 
+                              font.format == BT_FORMAT_PSF2 ? "PSF2" : 
+                              font.format == BT_FORMAT_TTF ? "TTF" : "Unknown");
 
     dazzle_clear(ctx, 0x00000000);
 
