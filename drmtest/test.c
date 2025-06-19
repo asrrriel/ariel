@@ -12,7 +12,7 @@
 
 int main() {
 
-    int fd = open("/dev/dri/card1", O_RDWR | O_CLOEXEC);
+    int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
     if (fd == -1) {
         printf("Failed to open drm device\n");
         return 1;
