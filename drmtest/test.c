@@ -105,6 +105,8 @@ int main() {
         return 1;
     }
 
+    pause();
+
     return 0;
 
 }
