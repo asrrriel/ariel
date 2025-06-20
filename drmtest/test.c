@@ -10,6 +10,11 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
+#define __DAZZLE_IMPL__
+
+#include <betterm/bt.h>
+#include <betterm/__fontldr.inc.c>
+
 
 int init_drm() {
     int fd = -1;
@@ -167,15 +172,71 @@ int main() {
 
         framebuffer fb = setup_framebuffer(fd, connector);
 
-        memset(fb.fb_ptr, 0xFF, fb.size);
+        dazzle_allocator_t alloc;
+        alloc.malloc = malloc;
+        alloc.free = free;
+        
+        dazzle_framebuffer_t daz_fb;
+        daz_fb.address         = (uintptr_t)fb.fb_ptr;
+        daz_fb.width           = connector->modes[0].hdisplay;
+        daz_fb.height          = connector->modes[0].vdisplay;
+        daz_fb.pitch           = fb.pitch;
+        daz_fb.bpp             = 32;
+        daz_fb.red_mask        = 0xFF; 
+        daz_fb.green_mask      = 0xFF;
+        daz_fb.blue_mask       = 0xFF;
+        daz_fb.alpha_mask      = 0xFF;
+        daz_fb.red_shift       = 24;
+        daz_fb.green_shift     = 16;
+        daz_fb.blue_shift      = 8;
+        daz_fb.alpha_shift     = 0;
+        
+        dazzle_context_t* ctx = dazzle_init_fb(alloc, &daz_fb);
+        
+        FILE* f = fopen("test.psf", "rb");
+        if(f == NULL) {
+            printf("Failed to open test.psf\n");
+            return 1;
+        }
+        fseek(f, 0, SEEK_END);
+        int fsize = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        uint8_t* psf = malloc(fsize);
+        fread(psf, fsize, 1, f);
+        fclose(f);
+    
+        font_t font = load_font(alloc, psf, fsize);
+    
+        printf("Framebuffer resolution: %dx%d\n",daz_fb.width,daz_fb.height);
+        printf("Font type: %s\n", font.format == BT_FORMAT_PSF1 ? "PSF1" : 
+                                  font.format == BT_FORMAT_PSF2 ? "PSF2" : 
+                                  font.format == BT_FORMAT_TTF ? "TTF" : "Unknown");
+        printf("Glyph count: %d\n", font.glyph_count);
+        printf("Suggested width: %d\n", font.suggested_width);
+        printf("Suggested height: %d\n", font.suggested_height);
+        printf("bytes per glyph: %d\n", font.psfx_bytes_per_glyph);
+        
+        dazzle_clear(ctx, 0x00000000);
+        
+        uint32_t posx = 0;
+        uint32_t posy = 0;
+        for(int i = 0; i < font.glyph_count; i++){
+            glyph_t glyph = render_glyph(font, i,0,0x000000FF);
+            dazzle_draw(ctx, dazzle_create_blitable(ctx, posx, posy, glyph.width, glyph.height, glyph.buffer));
+            posx += glyph.width;
+            if(posx >= (daz_fb.width - glyph.width)){
+                posx = 0;
+                posy += glyph.height;
+            }
+        }
 
         if(drmModeSetCrtc(fd, fb.crtc->crtc_id, fb.fb_id, 0, 0, &connector->connector_id, 1, &connector->modes[0])){
             printf("Failed to modeset crtc\n");
             return 1;
         }
     }
-    
-    //pause();
+
+    pause();
 
     return 0;
 

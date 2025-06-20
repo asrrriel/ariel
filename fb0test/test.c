@@ -1,10 +1,9 @@
-#define __DAZZLE_IMPL__
 
+#define __DAZZLE_IMPL__
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <betterm/bt.h>
 #include <betterm/__fontldr.inc.c>
 #include <fcntl.h>
