@@ -1,10 +1,10 @@
-#ifndef ____FONTLDR_INC_C__
-#define ____FONTLDR_INC_C__
+#ifndef __DT_GLYPHS_H__
+#define __DT_GLYPHS_H__
 
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/types.h>
-#include "dazzle/include/dazzle.h"
+#include <dazzle.h>
 
 #ifndef PACKED
     #define PACKED __attribute__((packed))
@@ -72,19 +72,6 @@ typedef struct {
     uint32_t height;
 } glyph_t; 
 
-// Positioned Glyph Index
-typedef struct {
-    uint32_t index;
-    uint32_t x;
-    uint32_t y;
-} pgi_t;
-
-//Positioned Glyph Index List
-typedef struct {
-    pgi_t* pgis;
-    uint32_t count;
-} pgil_t;
-
 /*
  * @brief Loads a font
  * 
@@ -125,17 +112,6 @@ font_t load_font(dazzle_allocator_t alloc, char* data, uint32_t size){
 
     return toreturn;
 }
-/*
- * @brief Creates a glyph list from text
- * 
- * @param font The font to use
- * @param text The text to create glyphs from
- * @param size The size of the glyphs
- * @return pgil_t The glyph list
-*/
-pgil_t get_glyphs(font_t font,char* text, uint32_t size){
-    
-}
 
 /*
  * @brief Renders a glyph
@@ -169,4 +145,4 @@ glyph_t render_glyph(font_t font, uint32_t c, uint32_t size, uint32_t color){
     return toreturn;
 }
 
-#endif // ____FONTLDR_INC_C__
+#endif // __DT_GLYPHS_H__

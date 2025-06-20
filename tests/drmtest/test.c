@@ -12,8 +12,8 @@
 
 #define __DAZZLE_IMPL__
 
-#include <betterm/bt.h>
-#include <betterm/__fontldr.inc.c>
+#include <bt.h>
+#include <dt_glyphs.h>
 
 
 int init_drm() {
@@ -186,10 +186,10 @@ int main() {
         daz_fb.green_mask      = 0xFF;
         daz_fb.blue_mask       = 0xFF;
         daz_fb.alpha_mask      = 0xFF;
-        daz_fb.red_shift       = 24;
-        daz_fb.green_shift     = 16;
-        daz_fb.blue_shift      = 8;
-        daz_fb.alpha_shift     = 0;
+        daz_fb.red_shift       = 16;
+        daz_fb.green_shift     = 8;
+        daz_fb.blue_shift      = 0;
+        daz_fb.alpha_shift     = 24;
         
         dazzle_context_t* ctx = dazzle_init_fb(alloc, &daz_fb);
         

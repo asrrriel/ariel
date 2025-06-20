@@ -1,12 +1,14 @@
-#define __DAZZLE_IMPL__
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
-#include <betterm/bt.h>
-#include <betterm/__fontldr.inc.c>
 #include <SDL2/SDL.h>
+
+#define __DAZZLE_IMPL__
+
+#include <bt.h>
+#include <dt_glyphs.h>
 
 int main(int argc, char **argv) {
     SDL_Init(SDL_INIT_VIDEO);

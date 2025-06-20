@@ -1,16 +1,16 @@
-
-#define __DAZZLE_IMPL__
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <betterm/bt.h>
-#include <betterm/__fontldr.inc.c>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <linux/fb.h>
 #include <sys/ioctl.h>
+
+#define __DAZZLE_IMPL__
+#include <bt.h>
+#include <dt_glyphs.h>
 
 int main(int argc, char **argv) {
 
