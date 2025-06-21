@@ -52,7 +52,7 @@ uint8_t utf8_decode(utf8_dec_state_t *state, uint8_t c, uint32_t *out);
                 return UTF8_CODEPOINT_EXTRACTED;
             }
         } else {
-            if(!(c & 0x80)){
+            if((c & 0xC0) != 0x80){ // the first 2 bits have to be 0b10
                 return UTF8_INVALID_INPUT;
             } 
             state->codepoint = (c & 0x3F) | (state->codepoint << 6);
