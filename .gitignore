@@ -1,3 +1,4 @@
-test/test
-drmtest/test
-fb0test/test
+tests/sdltest/test
+tests/drmtest/test
+tests/fb0test/test
+libutf8/test

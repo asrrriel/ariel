@@ -7,11 +7,9 @@
 int main(){
     utf8_dec_state_t state = {0};
 
-    char* ch = "aáeéiíoóuú";
-
-    for(int i = 0; i < strlen(ch); i++){
+    while(1){
         uint32_t cp;
-        uint8_t status = utf8_decode(&state, ch[i], &cp);
+        uint8_t status = utf8_decode(&state, fgetc(stdin), &cp);
         if(status == UTF8_CODEPOINT_EXTRACTED){
             printf("0x%4x\n", cp);
         } else if (status == UTF8_MORE_BYTES_REQUIRED){
