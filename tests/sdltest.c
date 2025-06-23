@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <SDL2/SDL.h>
+#include <stdlib.h>
 
 #define __DAZZLE_IMPL__
 
@@ -37,42 +38,58 @@ int main(int argc, char **argv) {
 
     dazzle_context_t* ctx = dazzle_init_fb(alloc, &fb);
 
-    FILE* f = fopen("test.psf", "rb");
-    if(f == NULL) {
-        printf("Failed to open test.psf\n");
-        return 1;
-    }
-    fseek(f, 0, SEEK_END);
-    int fsize = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    uint8_t* psf = malloc(fsize);
-    fread(psf, fsize, 1, f);
-    fclose(f);
-
-    font_t font = load_font(alloc, psf, fsize);
-
-    printf("Font type: %s\n", font.format == BT_FORMAT_PSF1 ? "PSF1" : 
-                              font.format == BT_FORMAT_PSF2 ? "PSF2" : 
-                              font.format == BT_FORMAT_TTF ? "TTF" : "Unknown");
-    printf("Glyph count: %d\n", font.glyph_count);
-    printf("Suggested width: %d\n", font.suggested_width);
-    printf("Suggested height: %d\n", font.suggested_height);
-    printf("glyph data pointer: %p\n", font.glyph_data);
-    printf("bytes per glyph: %d\n", font.psfx_bytes_per_glyph);
-
     dazzle_clear(ctx, 0x00000000);
-    
+            
     uint32_t posx = 0;
     uint32_t posy = 0;
-    for(int i = 0; i < font.glyph_count; i++){
-        glyph_t glyph = render_glyph(font, i,0,0x000000FF);
-        dazzle_draw(ctx, dazzle_create_blitable(ctx, posx, posy, glyph.width, glyph.height, glyph.buffer));
-        posx += glyph.width;
-        if(posx >= (fb.width - glyph.width)){
-            posx = 0;
-            posy += glyph.height;
+
+    for(int i = 0; i < 10; i++) {
+        FILE* f;
+        char name[32];
+        if (i != 0){
+            sprintf(name, "test%d.psf", i);
+            f = fopen(name, "rb");
+        } else {
+            f = fopen("test.psf", "rb");
         }
+        if(f == NULL) {
+            continue;
+        }
+        fseek(f, 0, SEEK_END);
+        int fsize = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        uint8_t* psf = malloc(fsize);
+        fread(psf, fsize, 1, f);
+        fclose(f);
+
+        font_t font = load_font(alloc, psf, fsize);
+
+        printf("====== Font %s ======\n", i == 0 ? "test.psf" : name);
+
+        printf("Font type: %s\n", font.format == BT_FORMAT_PSF1 ? "PSF1" : 
+                                  font.format == BT_FORMAT_PSF2 ? "PSF2" : 
+                                  font.format == BT_FORMAT_TTF ? "TTF" : "Unknown");
+        printf("Glyph count: %d\n", font.glyph_count);
+        printf("Suggested width: %d\n", font.suggested_width);
+        printf("Suggested height: %d\n", font.suggested_height);
+        printf("glyph data pointer: %p\n", font.glyph_data);
+        printf("bytes per glyph: %d\n", font.psfx_bytes_per_glyph);
+
+        posx = 0;
+
+        for(int i = 0; i < font.glyph_count; i++){
+            glyph_t glyph = render_glyph(font, i,0,0x000000FF);
+            dazzle_draw(ctx, dazzle_create_blitable(ctx, posx, posy, glyph.width, glyph.height, glyph.buffer));
+            posx += glyph.width;
+            if(posx >= (fb.width - glyph.width)){
+                posx = 0;
+                posy += glyph.height;
+            }
+        }
+        posy += font.suggested_height;
+        free(psf);
     }
+    
 
     uint64_t color = 0x00000000;
     bool done = false;
