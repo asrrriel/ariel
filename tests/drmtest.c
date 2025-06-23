@@ -100,7 +100,7 @@ typedef struct {
     uint8_t *fb_ptr;
 } framebuffer;
 
-framebuffer setup_framebuffer(int fd, drmModeConnector *connector) {
+framebuffer setup_framebuffer(int fd, drmModeConnector *connector,int mode_num) {
     drmModeEncoder* encoder = drmModeGetEncoder(fd, connector->encoders[0]);
 
     if (encoder == NULL) {
@@ -122,13 +122,13 @@ framebuffer setup_framebuffer(int fd, drmModeConnector *connector) {
     uint32_t handle;
     uint32_t pitch;
     uint64_t size;
-    if(drmModeCreateDumbBuffer(fd, connector->modes[0].hdisplay, connector->modes[0].vdisplay, 32,0 , &handle, &pitch, &size)){
+    if(drmModeCreateDumbBuffer(fd, connector->modes[mode_num].hdisplay, connector->modes[mode_num].vdisplay, 32,0 , &handle, &pitch, &size)){
         printf("Failed to create dumb buffer\n");
         return (framebuffer){};
     }
 
     uint32_t fb;
-    if (drmModeAddFB(fd, connector->modes[0].hdisplay, connector->modes[0].vdisplay, 24, 32, pitch, handle, &fb)){
+    if (drmModeAddFB(fd, connector->modes[mode_num].hdisplay, connector->modes[mode_num].vdisplay, 24, 32, pitch, handle, &fb)){
         printf("Failed to add framebuffer\n");
         return (framebuffer){};
     }
@@ -149,9 +149,17 @@ framebuffer setup_framebuffer(int fd, drmModeConnector *connector) {
 }
 
 
-int main() {
+int main(int argc,char** argv) {
 
     int fd = init_drm();
+
+    int mode_id = 0;
+
+    if (argc > 1){
+   	mode_id = atoi(argv[1]);
+    }
+    
+    
 
     connected_connectors connectors = enumerate_resources(fd);
 
@@ -168,9 +176,9 @@ int main() {
     
     for (int i = 0; i < connectors.count; i++) {
         drmModeConnector *connector = connectors.connectors[i];
-        printf("Modesetting connector %d: %dx%d\n", connector->connector_id, connector->modes[0].hdisplay, connector->modes[0].vdisplay);
+        printf("Modesetting connector %d: %dx%d\n", connector->connector_id, connector->modes[mode_id].hdisplay, connector->modes[mode_id].vdisplay);
 
-        framebuffer fb = setup_framebuffer(fd, connector);
+        framebuffer fb = setup_framebuffer(fd, connector,mode_id);
 
         dazzle_allocator_t alloc;
         alloc.malloc = malloc;
@@ -178,8 +186,8 @@ int main() {
         
         dazzle_framebuffer_t daz_fb;
         daz_fb.address         = (uintptr_t)fb.fb_ptr;
-        daz_fb.width           = connector->modes[0].hdisplay;
-        daz_fb.height          = connector->modes[0].vdisplay;
+        daz_fb.width           = connector->modes[mode_id].hdisplay;
+        daz_fb.height          = connector->modes[mode_id].vdisplay;
         daz_fb.pitch           = fb.pitch;
         daz_fb.bpp             = 32;
         daz_fb.red_mask        = 0xFF; 
@@ -230,7 +238,7 @@ int main() {
             }
         }
 
-        if(drmModeSetCrtc(fd, fb.crtc->crtc_id, fb.fb_id, 0, 0, &connector->connector_id, 1, &connector->modes[0])){
+        if(drmModeSetCrtc(fd, fb.crtc->crtc_id, fb.fb_id, 0, 0, &connector->connector_id, 1, &connector->modes[mode_id])){
             printf("Failed to modeset crtc\n");
             return 1;
         }
